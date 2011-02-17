@@ -2,9 +2,9 @@
 <html> 
 	<head> 
     <title>SOT</title> 
-    <link rel="stylesheet" href="css/jquery.mobile-1.0a3.min.css" />
+    <link rel="stylesheet" href="css/jquery.mobile-1.0a3.css" />
     <script type="text/javascript" src="js/jquery.js"></script>
-    <script type="text/javascript" src="js/jquery.mobile-1.0a3.min.js"></script>
+    <script type="text/javascript" src="js/jquery.mobile-1.0a3.js"></script>
   </head> 
   <body> 
     <div data-role="page">
