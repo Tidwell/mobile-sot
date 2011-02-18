@@ -1,20 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-// -- Environment setup --------------------------------------------------------
-
-// Load the core Kohana class
-require SYSPATH.'classes/kohana/core'.EXT;
-
-if (is_file(APPPATH.'classes/kohana'.EXT))
-{
-	// Application extends the core
-	require APPPATH.'classes/kohana'.EXT;
-}
-else
-{
-	// Load empty core extension
-	require SYSPATH.'classes/kohana'.EXT;
-}
+//-- Environment setup --------------------------------------------------------
 
 /**
  * Set the default time zone.
@@ -48,22 +34,14 @@ spl_autoload_register(array('Kohana', 'auto_load'));
  */
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
-// -- Configuration and initialization -----------------------------------------
-
-/**
- * Set the default language
- */
-I18n::lang('en-us');
+//-- Configuration and initialization -----------------------------------------
 
 /**
  * Set Kohana::$environment if a 'KOHANA_ENV' environment variable has been supplied.
- *
- * Note: If you supply an invalid environment name, a PHP warning will be thrown
- * saying "Couldn't find constant Kohana::<INVALID_ENV_NAME>"
  */
 if (getenv('KOHANA_ENV') !== FALSE)
 {
-	Kohana::$environment = constant('Kohana::'.strtoupper(getenv('KOHANA_ENV')));
+	Kohana::$environment = getenv('KOHANA_ENV');
 }
 
 /**
@@ -80,18 +58,18 @@ if (getenv('KOHANA_ENV') !== FALSE)
  * - boolean  caching     enable or disable internal caching                 FALSE
  */
 Kohana::init(array(
-	'base_url'   => '/mslo-sot/',
+	'base_url'   => '/',
 ));
 
 /**
  * Attach the file write to logging. Multiple writers are supported.
  */
-Kohana::$log->attach(new Log_File(APPPATH.'logs'));
+Kohana::$log->attach(new Kohana_Log_File(APPPATH.'logs'));
 
 /**
  * Attach a file reader to config. Multiple readers are supported.
  */
-Kohana::$config->attach(new Config_File);
+Kohana::$config->attach(new Kohana_Config_File);
 
 /**
  * Enable modules. Modules are referenced by a relative or absolute path.
@@ -103,8 +81,14 @@ Kohana::modules(array(
 	// 'database'   => MODPATH.'database',   // Database access
 	// 'image'      => MODPATH.'image',      // Image manipulation
 	// 'orm'        => MODPATH.'orm',        // Object Relationship Mapping
+	// 'oauth'      => MODPATH.'oauth',      // OAuth authentication
+	// 'pagination' => MODPATH.'pagination', // Paging of results
 	// 'unittest'   => MODPATH.'unittest',   // Unit testing
 	// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
+    'oauth'       => MODPATH.'oauth',      // OAuth authentication
+    'apis/demo'   => MODPATH.'apis/demo',
+    'apis/twitter' => MODPATH.'apis/twitter',
+    'twitter' => MODPATH.'apis/twitter',
 	));
 
 /**
@@ -113,6 +97,18 @@ Kohana::modules(array(
  */
 Route::set('default', '(<controller>(/<action>(/<id>)))')
 	->defaults(array(
-		'controller' => 'index',
+		'controller' => 'welcome',
 		'action'     => 'index',
 	));
+
+if ( ! defined('SUPPRESS_REQUEST'))
+{
+	/**
+	 * Execute the main request. A source of the URI can be passed, eg: $_SERVER['PATH_INFO'].
+	 * If no source is specified, the URI will be automatically detected.
+	 */
+	echo Request::instance()
+		->execute()
+		->send_headers()
+		->response;
+}

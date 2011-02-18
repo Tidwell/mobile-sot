@@ -71,9 +71,7 @@ class Kohana_Cache_Apc extends Cache {
 	 */
 	public function get($id, $default = NULL)
 	{
-		$data = apc_fetch($this->_sanitize_id($id), $success);
-
-		return $success ? $data : $default;
+		return (($data = apc_fetch($this->_sanitize_id($id))) === FALSE) ? $default : $data;
 	}
 
 	/**

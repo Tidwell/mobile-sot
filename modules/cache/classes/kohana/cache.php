@@ -138,7 +138,7 @@ abstract class Kohana_Cache {
 	}
 
 	/**
-	 * @var  Config
+	 * @var  Kohana_Config
 	 */
 	protected $_config;
 

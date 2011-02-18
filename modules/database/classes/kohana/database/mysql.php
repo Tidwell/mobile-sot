@@ -64,10 +64,10 @@ class Kohana_Database_MySQL extends Database {
 			// No connection exists
 			$this->_connection = NULL;
 
-			throw new Database_Exception(mysql_errno(), '[:code] :error', array(
-					':code' => mysql_errno(),
+			throw new Database_Exception(':error', array(
 					':error' => mysql_error(),
-				));
+				),
+				mysql_errno());
 		}
 
 		// \xFF is a better delimiter, but the PHP driver uses underscore
@@ -93,10 +93,9 @@ class Kohana_Database_MySQL extends Database {
 		if ( ! mysql_select_db($database, $this->_connection))
 		{
 			// Unable to select database
-			throw new Database_Exception(mysql_errno($this->_connection), '[:code] :error', array(
-				':code' => mysql_errno($this->_connection),
-				':error' => mysql_error($this->_connection),
-			));
+			throw new Database_Exception(':error',
+				array(':error' => mysql_error($this->_connection)),
+				mysql_errno($this->_connection));
 		}
 
 		Database_MySQL::$_current_databases[$this->_connection_id] = $database;
@@ -145,10 +144,9 @@ class Kohana_Database_MySQL extends Database {
 
 		if ($status === FALSE)
 		{
-			throw new Database_Exception(mysql_errno($this->_connection), '[:code] :error', array(
-				':code' => mysql_errno($this->_connection),
-				':error' => mysql_error($this->_connection),
-			));
+			throw new Database_Exception(':error',
+				array(':error' => mysql_error($this->_connection)),
+				mysql_errno($this->_connection));
 		}
 	}
 
@@ -178,11 +176,9 @@ class Kohana_Database_MySQL extends Database {
 				Profiler::delete($benchmark);
 			}
 
-			throw new Database_Exception(mysql_errno($this->_connection), '[:code] :error ( :query )', array(
-				':code' => mysql_errno($this->_connection),
-				':error' => mysql_error($this->_connection),
-				':query' => $sql,
-			));
+			throw new Database_Exception(':error [ :query ]',
+				array(':error' => mysql_error($this->_connection), ':query' => $sql),
+				mysql_errno($this->_connection));
 		}
 
 		if (isset($benchmark))
@@ -258,56 +254,6 @@ class Kohana_Database_MySQL extends Database {
 			return $types[$type];
 
 		return parent::datatype($type);
-	}
-
-	/**
-	 * Start a SQL transaction
-	 *
-	 * @link http://dev.mysql.com/doc/refman/5.0/en/set-transaction.html
-	 *
-	 * @param string Isolation level
-	 * @return boolean
-	 */
-	public function begin($mode = NULL)
-	{
-		// Make sure the database is connected
-		$this->_connection or $this->connect();
-
-		if ($mode AND ! mysql_query("SET TRANSACTION ISOLATION LEVEL $mode", $this->_connection))
-		{
-			throw new Database_Exception(mysql_errno($this->_connection), ':error', array(':error' => mysql_error($this->_connection)),
-										 mysql_errno($this->_connection));
-		}
-
-		return (bool) mysql_query('START TRANSACTION', $this->_connection);
-	}
-
-	/**
-	 * Commit a SQL transaction
-	 *
-	 * @param string Isolation level
-	 * @return boolean
-	 */
-	public function commit()
-	{
-		// Make sure the database is connected
-		$this->_connection or $this->connect();
-
-		return (bool) mysql_query('COMMIT', $this->_connection);
-	}
-
-	/**
-	 * Rollback a SQL transaction
-	 *
-	 * @param string Isolation level
-	 * @return boolean
-	 */
-	public function rollback()
-	{
-		// Make sure the database is connected
-		$this->_connection or $this->connect();
-
-		return (bool) mysql_query('ROLLBACK', $this->_connection);
 	}
 
 	public function list_tables($like = NULL)
@@ -421,10 +367,9 @@ class Kohana_Database_MySQL extends Database {
 
 		if (($value = mysql_real_escape_string( (string) $value, $this->_connection)) === FALSE)
 		{
-			throw new Database_Exception(mysql_errno($this->_connection), '[:code] :error', array(
-				':code' => mysql_errno($this->_connection),
-				':error' => mysql_error($this->_connection),
-			));
+			throw new Database_Exception(':error',
+				array(':error' => mysql_errno($this->_connection)),
+				mysql_error($this->_connection));
 		}
 
 		// SQL standard is to use single-quotes for all values

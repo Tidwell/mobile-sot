@@ -14,10 +14,10 @@ return array(
 			'name' => 'ORM',
 
 			// A short description of this module, shown on the index page
-			'description' => 'Official ORM module, a modeling library for object relational mapping.',
+			'description' => 'Object modeling and relation mapping.',
 			
 			// Copyright message, shown in the footer for this module
-			'copyright' => '&copy; 2008–2011 Kohana Team',
+			'copyright' => '&copy; 2008–2010 Kohana Team',
 		)	
 	)
 );

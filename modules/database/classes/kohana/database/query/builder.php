@@ -95,31 +95,37 @@ abstract class Kohana_Database_Query_Builder extends Database_Query {
 						// BETWEEN always has exactly two arguments
 						list($min, $max) = $value;
 
-						if ((is_string($min) AND array_key_exists($min, $this->_parameters)) === FALSE)
+						if (is_string($min) AND array_key_exists($min, $this->_parameters))
 						{
-							// Quote the value, it is not a parameter
-							$min = $db->quote($min);
+							// Set the parameter as the minimum
+							$min = $this->_parameters[$min];
 						}
 
-						if ((is_string($max) AND array_key_exists($max, $this->_parameters)) === FALSE)
+						if (is_string($max) AND array_key_exists($max, $this->_parameters))
 						{
-							// Quote the value, it is not a parameter
-							$max = $db->quote($max);
+							// Set the parameter as the maximum
+							$max = $this->_parameters[$max];
 						}
 
 						// Quote the min and max value
-						$value = $min.' AND '.$max;
+						$value = $db->quote($min).' AND '.$db->quote($max);
 					}
-					elseif ((is_string($value) AND array_key_exists($value, $this->_parameters)) === FALSE)
+					else
 					{
-						// Quote the value, it is not a parameter
+						if (is_string($value) AND array_key_exists($value, $this->_parameters))
+						{
+							// Set the parameter as the value
+							$value = $this->_parameters[$value];
+						}
+
+						// Quote the entire value normally
 						$value = $db->quote($value);
 					}
 
 					if ($column)
 					{
 						// Apply proper quoting to the column
-						$column = $db->quote_column($column);
+						$column = $db->quote_identifier($column);
 					}
 
 					// Append the statement to the query
@@ -149,15 +155,15 @@ abstract class Kohana_Database_Query_Builder extends Database_Query {
 			list ($column, $value) = $group;
 
 			// Quote the column name
-			$column = $db->quote_column($column);
+			$column = $db->quote_identifier($column);
 
-			if ((is_string($value) AND array_key_exists($value, $this->_parameters)) === FALSE)
+			if (is_string($value) AND array_key_exists($value, $this->_parameters))
 			{
-				// Quote the value, it is not a parameter
-				$value = $db->quote($value);
+				// Use the parameter value
+				$value = $this->_parameters[$value];
 			}
 
-			$set[$column] = $column.' = '.$value;
+			$set[$column] = $column.' = '.$db->quote($value);
 		}
 
 		return implode(', ', $set);
@@ -186,7 +192,7 @@ abstract class Kohana_Database_Query_Builder extends Database_Query {
 			if ($column)
 			{
 				// Quote the column, if it has a value
-				$column = $db->quote_column($column);
+				$column = $db->quote_identifier($column);
 			}
 
 			$sort[] = trim($column.' '.$direction);

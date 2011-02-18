@@ -31,9 +31,6 @@ class Kohana_Database_Query_Builder_Select extends Database_Query_Builder_Where 
 	// OFFSET ...
 	protected $_offset = NULL;
 
-    // UNION ...
-    protected $_union = array();
-
 	// The last JOIN statement created
 	protected $_last_join;
 
@@ -138,22 +135,6 @@ class Kohana_Database_Query_Builder_Select extends Database_Query_Builder_Where 
 	public function on($c1, $op, $c2)
 	{
 		$this->_last_join->on($c1, $op, $c2);
-
-		return $this;
-	}
-
-	/**
-	 * Adds "USING ..." conditions for the last created JOIN statement.
-	 *
-	 * @param   string  column name
-	 * @param   ...
-	 * @return  $this
-	 */
-	public function using($columns)
-	{
-		$columns = func_get_args();
-
-		call_user_func_array(array($this->_last_join, 'using'), $columns);
 
 		return $this;
 	}
@@ -286,26 +267,6 @@ class Kohana_Database_Query_Builder_Select extends Database_Query_Builder_Where 
 	}
 
 	/**
-	 * Adds an other UNION clause.
-	 * 
-	 * @param mixed $select if string, it must be the name of a table. Else
-	 *  must be an instance of Database_Query_Builder_Select
-	 * @param boolean $all decides if it's an UNION or UNION ALL clause
-	 * @return $this
-	 */
-	public function union($select, $all = TRUE)
-	{
-		if (is_string($select))
-		{
-			$select = DB::select()->from($select);
-		}
-		if ( ! $select instanceof Database_Query_Builder_Select)
-			throw new Kohana_Exception('first parameter must be a string or an instance of Database_Query_Builder_Select');
-		$this->_union []= array('select' => $select, 'all' => $all);
-		return $this;
-	}	
-
-	/**
 	 * Start returning results after "OFFSET ..."
 	 *
 	 * @param   integer   starting result number
@@ -326,8 +287,8 @@ class Kohana_Database_Query_Builder_Select extends Database_Query_Builder_Where 
 	 */
 	public function compile(Database $db)
 	{
-		// Callback to quote columns
-		$quote_column = array($db, 'quote_column');
+		// Callback to quote identifiers
+		$quote_ident = array($db, 'quote_identifier');
 
 		// Callback to quote tables
 		$quote_table = array($db, 'quote_table');
@@ -349,7 +310,7 @@ class Kohana_Database_Query_Builder_Select extends Database_Query_Builder_Where 
 		else
 		{
 			// Select all columns
-			$query .= implode(', ', array_unique(array_map($quote_column, $this->_select)));
+			$query .= implode(', ', array_unique(array_map($quote_ident, $this->_select)));
 		}
 
 		if ( ! empty($this->_from))
@@ -373,7 +334,7 @@ class Kohana_Database_Query_Builder_Select extends Database_Query_Builder_Where 
 		if ( ! empty($this->_group_by))
 		{
 			// Add sorting
-			$query .= ' GROUP BY '.implode(', ', array_map($quote_column, $this->_group_by));
+			$query .= ' GROUP BY '.implode(', ', array_map($quote_ident, $this->_group_by));
 		}
 
 		if ( ! empty($this->_having))
@@ -399,22 +360,8 @@ class Kohana_Database_Query_Builder_Select extends Database_Query_Builder_Where 
 			// Add offsets
 			$query .= ' OFFSET '.$this->_offset;
 		}
-		
-		if ( ! empty($this->_union))
-		{
-			foreach ($this->_union as $u) {
-				$query .= ' UNION ';
-				if ($u['all'] === TRUE)
-				{
-					$query .= 'ALL ';
-				}
-				$query .= $u['select']->compile($db);
-			}
-		}
 
-		$this->_sql = $query;
-
-		return parent::compile($db);
+		return $query;
 	}
 
 	public function reset()
@@ -425,8 +372,7 @@ class Kohana_Database_Query_Builder_Select extends Database_Query_Builder_Where 
 		$this->_where    =
 		$this->_group_by =
 		$this->_having   =
-		$this->_order_by =
-		$this->_union = array();
+		$this->_order_by = array();
 
 		$this->_distinct = FALSE;
 
@@ -436,10 +382,7 @@ class Kohana_Database_Query_Builder_Select extends Database_Query_Builder_Where 
 
 		$this->_parameters = array();
 
-		$this->_sql = NULL;
-
 		return $this;
 	}
 
 } // End Database_Query_Select
-

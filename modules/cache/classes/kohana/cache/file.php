@@ -373,7 +373,7 @@ class Kohana_Cache_File extends Cache implements Kohana_Cache_GarbageCollect {
 					$name = $files->getFilename();
 
 					// If the name is not a dot
-					if ($name != '.' AND $name != '..' AND substr($file->getFilename(), 0, 1) == '.')
+					if ($name != '.' and $name != '..')
 					{
 						// Create new file resource
 						$fp = new SplFileInfo($files->getRealPath());

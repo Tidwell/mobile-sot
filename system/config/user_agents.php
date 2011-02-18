@@ -1,4 +1,4 @@
-<?php defined('SYSPATH') or die('No direct script access.');
+<?php defined('SYSPATH') or die('No direct access allowed.');
 
 return array(
 
@@ -88,8 +88,6 @@ return array(
 		'blackBerry'     => 'BlackBerry',
 		'motorola'       => 'Motorola',
 		'iphone'         => 'iPhone',
-		'ipad'           => 'iPad',
-		'ipod'           => 'iPod',
 		'android'        => 'Android',
 	),
 

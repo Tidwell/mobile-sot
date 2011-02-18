@@ -46,7 +46,7 @@ class Kohana_Database_MySQL_Result extends Database_Result {
 	public function current()
 	{
 		if ($this->_current_row !== $this->_internal_row AND ! $this->seek($this->_current_row))
-			return NULL;
+			return FALSE;
 
 		// Increment internal row for optimization assuming rows are fetched in order
 		$this->_internal_row++;

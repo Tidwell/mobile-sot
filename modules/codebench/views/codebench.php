@@ -2,7 +2,7 @@
 /**
  * Codebench — A benchmarking module.
  *
- * @package    Kohana/Codebench
+ * @package    Kohana
  * @author     Kohana Team
  * @copyright  (c) 2009 Kohana Team
  * @license    http://kohanaphp.com/license.html
@@ -14,9 +14,7 @@
 <head>
 
 	<meta charset="utf-8" />
-	<title><?php if ($class !== ''): ?>
-			<?php echo $class, ' · ' ?>
-		<?php endif; ?>Codebench</title>
+	<title><?php if ($class !== '') echo $class, ' · ' ?>Codebench</title>
 
 	<style>
 		/* General styles*/

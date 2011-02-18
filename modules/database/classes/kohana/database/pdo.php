@@ -56,10 +56,11 @@ class Kohana_Database_PDO extends Database {
 		}
 		catch (PDOException $e)
 		{
-			throw new Database_Exception($e->getCode(), '[:code] :error', array(
-				':code' => $e->getMessage(),
-				':error' => $e->getCode(),
-			), $e->getCode());
+			throw new Database_Exception(':error', array(
+					':error' => $e->getMessage(),
+				),
+				$e->getCode(),
+				$e);
 		}
 
 		if ( ! empty($this->_config['charset']))
@@ -110,11 +111,12 @@ class Kohana_Database_PDO extends Database {
 			}
 
 			// Convert the exception in a database exception
-			throw new Database_Exception($e->getCode(), '[:code] :error ( :query )', array(
-				':code' => $e->getMessage(),
-				':error' => $e->getCode(),
-				':query' => $sql,
-			), $e->getCode());
+			throw new Database_Exception(':error [ :query ]', array(
+					':error' => $e->getMessage(),
+					':query' => $sql
+				),
+				$e->getCode(),
+				$e);
 		}
 
 		if (isset($benchmark))
@@ -159,30 +161,6 @@ class Kohana_Database_PDO extends Database {
 			// Return the number of rows affected
 			return $result->rowCount();
 		}
-	}
-
-	public function begin($mode = NULL)
-	{
-		// Make sure the database is connected
-		$this->_connection or $this->connect();
-
-		return $this->_connection->beginTransaction();
-	}
-
-	public function commit()
-	{
-		// Make sure the database is connected
-		$this->_connection or $this->connect();
-
-		return $this->_connection->commit();
-	}
-
-	public function rollback()
-	{
-		// Make sure the database is connected
-		$this->_connection or $this->connect();
-
-		return $this->_connection->rollBack();
 	}
 
 	public function list_tables($like = NULL)
